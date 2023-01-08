@@ -77,3 +77,4 @@ known_local_folder = [
 pythonpath = [
   "src"
 ]
+asyncio_mode = "auto"

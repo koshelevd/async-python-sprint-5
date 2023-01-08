@@ -1,17 +1,43 @@
 import asyncio
+import json
 from typing import AsyncGenerator, Generator
 
 import asyncpg
 import pytest
 import pytest_asyncio
+from fastapi import Depends
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from api.depends import get_user_service
 from db.utils.db_session import Base, engine
 from settings.app import initialize_app
 
 BASE_URL = "http://127.0.0.1/api/v1"
+
+
+class TestUser:
+    def __init__(self, email: str, password: str, token: str):
+        self.email = email
+        self.password = password
+        self.token = token
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
+    def set_token(self, token):
+        self.token = token
+        self.headers = {"Authorization": f"Bearer {self.token}"}
+
+
+@pytest_asyncio.fixture(scope="function")
+async def user(async_session: AsyncSession, client: AsyncClient) -> TestUser:
+    data = {"email": "testuser@nofoobar.com", "password": "testing"}
+    await client.post("/register", content=json.dumps(data))
+    response = await client.post(
+        "/auth", data={"username": data["email"], "password": data["password"]}
+    )
+    token = response.json().get("access_token")
+    return TestUser(data["email"], data["password"], token)
 
 
 @pytest.fixture(scope="session")
