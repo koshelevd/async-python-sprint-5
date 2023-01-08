@@ -16,8 +16,6 @@ services:
   redis:
     image: redis:6.2.6-alpine
     command: redis-server --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/var/lib/redis
     ports:
       - "6379:6379"
     depends_on:
@@ -25,6 +23,27 @@ services:
     env_file:
       - ./.env
 
+  app:
+    image: koshelevd/storage-api:latest
+    build: .
+    env_file:
+      - ./.env
+    restart:
+      always
+    volumes:
+      - ./storage:/opt/src/storage
+
+  nginx:
+    image: nginx:1.19.3
+    restart: unless-stopped
+    volumes:
+      - ./nginx_deploy.conf:/etc/nginx/nginx.conf
+      - ./storage:/opt/www/storage:ro
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
 volumes:
   postgres_data:
-  redis_data:
+  storage:

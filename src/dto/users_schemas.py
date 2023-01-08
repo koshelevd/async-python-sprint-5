@@ -1,5 +1,3 @@
-import uuid
-
 from dto.base import BaseSchema, ORMBaseSchema
 
 
@@ -12,7 +10,7 @@ class UserDTO(BaseUserSchema):
 
 
 class UserResponseEntity(BaseUserSchema):
-    id: uuid.UUID
+    id: int
 
 
 class TokenSchema(BaseSchema):

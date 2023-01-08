@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from sqlalchemy import asc, delete, desc, select, update
@@ -18,7 +17,7 @@ class RepositoryBase(BaseRepository):
         obj = await self.session.execute(query)
         return obj.scalar()
 
-    async def get_by_id(self, obj_id: uuid.UUID) -> model:
+    async def get_by_id(self, obj_id: int) -> model | None:
         query = select(self.model).filter(self.model.id == obj_id)
         obj = await self.session.execute(query)
         return obj.scalar_one_or_none()
@@ -33,12 +32,9 @@ class RepositoryBase(BaseRepository):
     ) -> list[model]:
         query = select(self.model).filter_by(is_deleted=False, **kwargs)
         if field_sorted is not None:
-            if type_sorted == type_sorted_desc:
-                query = query.order_by(desc(field_sorted))
-            else:
-                query = query.order_by(asc(field_sorted))
+            sorted_type = desc if type_sorted == type_sorted_desc else asc
+            query = query.order_by(sorted_type(field_sorted))
         query = query.limit(limit).offset(offset)
-
         obj = await self.session.execute(query)
         return obj.scalars().all()
 
@@ -65,4 +61,5 @@ class RepositoryBase(BaseRepository):
 
     def create(self, *args, **kwargs) -> model:
         obj = self.model(*args, **kwargs)
+        # repo never commits. Service performs all commit actions
         return obj

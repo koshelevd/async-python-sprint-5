@@ -10,14 +10,16 @@ class File(BaseModel):
 
     __tablename__ = "files"
 
-    name = Column(String, nullable=False, comment="File name")
-    path = Column(String, nullable=False, unique=True, comment="Path to file")
+    name = Column(String(255), nullable=False, comment="File name")
+    path = Column(
+        String(255), nullable=False, unique=True, comment="Path to file"
+    )
     size = Column(Integer, nullable=False, comment="File size")
     is_downloadable = Column(Boolean, default=True)
 
     user_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id"),
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=True,
         comment="User",
     )

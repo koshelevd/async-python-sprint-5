@@ -8,12 +8,7 @@ from cache.cache import cached
 
 from api.depends import get_current_user, get_file_service
 from db.tables import User
-from dto.files_schemas import (
-    FileEntity,
-    PingStatus,
-    UserDirsInfo,
-    UserFilesList,
-)
+from dto.files_schemas import FileEntity, UserDirsInfo, UserFilesList
 from services import FileService
 from services.exceptions import BaseSimpleException
 from settings.storage import storage_settings
@@ -21,14 +16,8 @@ from settings.storage import storage_settings
 router = APIRouter()
 
 
-@router.get(
-    "/ping", summary="Check service DB availability", response_model=PingStatus
-)
-async def ping(file_service: FileService = Depends(get_file_service)):
-    """Check service DB availability."""
-    return await file_service.ping()
-
-
+# alias - str specifying the alias to load the config from
+# /src/settings/cache/settings.py
 @cached(ttl=10, alias="redis_alt")
 @router.get(
     "/list", response_model=UserFilesList, summary="Get user's files info"
@@ -51,6 +40,7 @@ async def download_file(
     user: User = Depends(get_current_user),
     file_service: FileService = Depends(get_file_service),
 ):
+    """Download file."""
     try:
         file = await file_service.get_user_file(path, user)
     except SQLAlchemyError as err:
@@ -78,8 +68,7 @@ async def upload_file(
     file_service: FileService = Depends(get_file_service),
 ):
     """Upload file to storage."""
-    result = await file_service.save_file_to_storage(path, file, user)
-    return result
+    return await file_service.save_file_to_storage(path, file, user)
 
 
 @cached(ttl=10, alias="redis_alt")

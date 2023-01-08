@@ -20,5 +20,6 @@ async def get_session() -> AsyncGenerator:
     session = Session()
     try:
         yield session
+        # коммиты и ролбэки обрабатываем в сервисах
     finally:
         await session.close()

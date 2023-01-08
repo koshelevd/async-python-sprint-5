@@ -2,6 +2,7 @@ import os.path
 import time
 from pathlib import Path
 
+import aiofiles
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -63,9 +64,7 @@ class FileService:
         result = UserFilesList(account_id=user.id, files=files)
         return result
 
-    async def save_file_to_storage(
-        self, path: str, file: UploadFile, user: User
-    ) -> File:
+    def _get_filename(self, path: str, file: UploadFile) -> tuple[str, str]:
         filename = ""
         if not path.startswith("/"):
             filename = "/"
@@ -74,6 +73,12 @@ class FileService:
         else:
             filename += path
         full_path = os.getcwd() + storage_settings.ROOT_DIR + filename
+        return filename, full_path
+
+    async def save_file_to_storage(
+        self, path: str, file: UploadFile, user: User
+    ) -> File:
+        filename, full_path = self._get_filename(path, file)
         existing_file = await self.file_repo.get_by_filename(
             os.path.basename(filename)
         )
@@ -110,10 +115,10 @@ class FileService:
     async def _save_file_to_storage(full_path: str, file: UploadFile):
         try:
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
-            with open(full_path, "wb") as file_to_save:
+            async with aiofiles.open(full_path, "wb") as file_to_save:
                 content = await file.read()
-                file_to_save.write(content)
-                file_to_save.close()
+                await file_to_save.write(content)
+                await file_to_save.close()
         except OSError as err:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

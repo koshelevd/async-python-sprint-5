@@ -1,7 +1,7 @@
 import uvicorn
 
-from api.app import initialize_app  # noqa
 from settings.api import api_settings
+from settings.app import initialize_app  # noqa
 
 app = initialize_app()
 

@@ -1,8 +1,6 @@
 import datetime
-from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, func
-from sqlalchemy.dialects.postgresql import UUID
 
 from db.utils.db_session import Base
 
@@ -11,8 +9,8 @@ class BaseModel(Base):
     __abstract__ = True
 
     id = Column(
-        UUID(as_uuid=True),
-        default=uuid4(),
+        Integer,
+        autoincrement=True,
         primary_key=True,
         nullable=False,
         comment="ID",

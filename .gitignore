@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .env
 /src/storage/
+test_db.db

@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from dto.base import BaseSchema, ORMBaseSchema
@@ -17,11 +16,11 @@ class FileUploadDTO(ORMBaseSchema):
 
 
 class FileEntity(BaseFileSchema):
-    id: uuid.UUID
+    id: int
 
 
 class UserFilesList(ORMBaseSchema):
-    account_id: uuid.UUID
+    account_id: int
     files: list[FileEntity]
 
 
@@ -35,7 +34,7 @@ class Folders(BaseSchema):
 
 
 class UserDirsInfo(ORMBaseSchema):
-    account_id: uuid.UUID
+    account_id: int
     folders: Folders
 
 

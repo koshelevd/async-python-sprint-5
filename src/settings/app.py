@@ -43,7 +43,7 @@ def initialize_app() -> FastAPI:
             }
         },
     )
-    # logging.config.dictConfig(log_config)
+    logging.config.dictConfig(log_config)
     _initialize_routers(app)
     _initialize_exception_handlers(app)
     return app
